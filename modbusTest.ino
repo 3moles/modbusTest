@@ -116,9 +116,9 @@ void loop() {
   }
   delay(500);
   
-if (!client.connected()){
-  reconnect();
-}
+  if (!client.connected()){
+    reconnect();
+  }
   // put your main code here, to run repeatedly:
 
 }
