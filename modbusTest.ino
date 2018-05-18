@@ -18,33 +18,29 @@ uint8_t result;
 ModbusMaster node;
 
 byte server[] = { 122, 112, 196, 119 }; // MQTT服务地址
-
-void callback(char* topic, byte* payload, unsigned int length) {
-  // handle message arrived
-}
-
 LGPRSClient gclient;
 char* boardId;
 
-PubSubClient client(server, 4001, callback, gclient);
+void callback(char* topic, byte* payload, unsigned int length) {
+  // handle message arrived
+  Serial.print("The topic is: ");
+  Serial.print(topic);
+  Serial.print(" payload: ");
+  String rst;
+  for (int i = 0; i < length; i++) {
+    rst += String(char(payload[i]));
+  }
+  Serial.println(rst);
+}
 
-void setup() {
-  //Set serial baut rate, Serial is used for PC and Serial1 is used for 485
-  Serial.begin(115200);
-  Serial1.begin(9600);
-  node.begin(2, Serial1);
-
-  // get board id from flash
-  Drv.begin();  // init flash
-  delay(2000);
-  
+void getBoardId() {
   LFile idFile;
   String id;
   char* idPath = (char *)"id.txt";
   if (Drv.exists(idPath)) {
     //Serial.println("id.txt is exist");
     idFile = Drv.open(idPath);
-    idFile.seek(0);
+     idFile.seek(0);
     while(idFile.available()) {
       id += String(char(idFile.read()));
     }
@@ -60,7 +56,27 @@ void setup() {
   }
   Serial.print("The board id is: ");
   Serial.println(boardId);
+}
 
+
+
+
+
+PubSubClient client(server, 4001, callback, gclient);
+
+void setup() {
+  //Set serial baut rate, Serial is used for PC and Serial1 is used for 485
+  Serial.begin(115200);
+  Serial1.begin(9600);
+  node.begin(2, Serial1);
+
+  // init flash
+  Drv.begin();  
+  delay(2000);
+  
+  // get board id from flash
+  getBoardId();
+  
   //Attach gprs
   while (!LGPRS.attachGPRS("cmiot","",""))
   {
@@ -92,7 +108,9 @@ void reconnect() {
 void loop() {
   
   result = node.readHoldingRegisters(m_startAddress, m_length);//调用相关函数
+  Serial.println("start connect 485");
   if (result == node.ku8MBSuccess) {
+    Serial.println("connect 485 success");
     char datas[60];
     char topics[8];
     String tmp = "";
@@ -104,10 +122,15 @@ void loop() {
     }
     tmp.toCharArray(datas, 60);
     if (client.connected()){
-     client.publish("data", datas);
+      Serial.print("the data is: ");
+      Serial.println(datas);
+      client.publish("data", datas);
     }
   }
   if (client.connected()){
+
+//    Serial.println("publish ipr");
+//    client.publish("ipr","test");
   
     Serial.println(gclient.available());
     Serial.println("loop");
@@ -115,6 +138,11 @@ void loop() {
     client.loop();
   }
   delay(500);
+
+  /*if (client.connected()) {
+    Serial.println("subscribe ip");
+    client.subscribe("ip");
+  }*/
   
   if (!client.connected()){
     reconnect();
