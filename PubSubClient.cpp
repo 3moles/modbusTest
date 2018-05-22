@@ -102,8 +102,8 @@ PubSubClient::PubSubClient(const char* domain, uint16_t port, MQTT_CALLBACK_SIGN
 }
 
 boolean PubSubClient::connect(const char *id) {
-    Serial.print("[PubSubClient connect] id:");
-    Serial.println(id);
+//    Serial.print("[PubSubClient connect] id:");
+//    Serial.println(id);
     return connect(id,NULL,NULL,0,0,0,0);
 }
 
@@ -119,16 +119,16 @@ boolean PubSubClient::connect(const char *id, const char* willTopic, uint8_t wil
 boolean PubSubClient::connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage) {
     if (!connected()) {
         int result = 0;
-        Serial.println("[PubSubClient connect]connnect fail!");
+//        Serial.println("[PubSubClient connect]connnect fail!");
         if (domain != NULL) {
             result = _client->connect(this->domain, this->port);
         } else {
-          Serial.print("[PubSubClient connect]id : ");
-          Serial.println(id);
-          Serial.print("[PubSubClient connect]ip : ");
-          Serial.print(this->ip);
-          Serial.print(" port : ");
-          Serial.println(this->port);
+//          Serial.print("[PubSubClient connect]id : ");
+//          Serial.println(id);
+//          Serial.print("[PubSubClient connect]ip : ");
+//          Serial.print(this->ip);
+//          Serial.print(" port : ");
+//          Serial.println(this->port);
             result = _client->connect(this->ip, this->port);
         }
         if (result == 1) {
